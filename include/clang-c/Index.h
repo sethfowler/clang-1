@@ -2770,6 +2770,14 @@ CINDEX_LINKAGE unsigned long long clang_getEnumConstantDeclUnsignedValue(CXCurso
 CINDEX_LINKAGE int clang_getFieldDeclBitWidth(CXCursor C);
 
 /**
+ * \brief Retrieve the base expression cursor of a function call, method call, 
+ * or member reference.
+ *
+ * For other cursors an invalid cursor is returned.
+ */
+CINDEX_LINKAGE CXCursor clang_Cursor_getBaseExpression(CXCursor C);
+
+/**
  * \brief Retrieve the number of non-variadic arguments associated with a given
  * cursor.
  *

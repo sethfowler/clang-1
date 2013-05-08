@@ -944,6 +944,19 @@ bool cxcursor::isFirstInDeclGroup(CXCursor C) {
   return ((uintptr_t) (C.data[1])) != 0;
 }
 
+static const Expr *FilterIntermediateExpressions(const Expr* E) {
+  const Expr *prevE = 0;
+  while (E != prevE) {
+    prevE = E;
+    if (const ImplicitCastExpr *ICE = dyn_cast_or_null<ImplicitCastExpr>(E)) {
+      E = ICE->getSubExpr();
+    } else if (const CXXBindTemporaryExpr *BTE = dyn_cast_or_null<CXXBindTemporaryExpr>(E)) {
+      E = BTE->getSubExpr();
+    }
+  }
+  return E;
+}
+
 //===----------------------------------------------------------------------===//
 // libclang CXCursor APIs
 //===----------------------------------------------------------------------===//
@@ -956,6 +969,31 @@ int clang_Cursor_isNull(CXCursor cursor) {
 
 CXTranslationUnit clang_Cursor_getTranslationUnit(CXCursor cursor) {
   return getCursorTU(cursor);
+}
+
+CXCursor clang_Cursor_getBaseExpression(CXCursor C) {
+  const Expr *base = 0;
+  if (clang_isExpression(C.kind)) {
+    const Expr *E = cxcursor::getCursorExpr(C);
+    if (const CallExpr *CE = dyn_cast<CallExpr>(E)) {
+      base = CE->getCallee();
+      if (const MemberExpr *ME = dyn_cast<MemberExpr>(base)) {
+        base = ME->getBase();
+      }
+    } else if (const MemberExpr *ME = dyn_cast<MemberExpr>(E)) {
+      base = ME->getBase();
+    }
+  }
+
+  base = FilterIntermediateExpressions(base);
+
+  if (base) {
+    return cxcursor::MakeCXCursor(base,
+                                  getCursorDecl(C),
+                                  cxcursor::getCursorTU(C));
+  }
+
+  return clang_getNullCursor();
 }
 
 int clang_Cursor_getNumArguments(CXCursor C) {
