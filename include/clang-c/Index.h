@@ -1218,6 +1218,8 @@ CINDEX_LINKAGE CXTranslationUnit clang_parseTranslationUnit(CXIndex CIdx,
                                                      unsigned num_unsaved_files,
                                                             unsigned options);
   
+CINDEX_LINKAGE void clang_setClangResourcesPath(CXIndex CIdx, const char* path);
+
 /**
  * \brief Flags that control how translation units are saved.
  *

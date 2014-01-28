@@ -61,6 +61,8 @@ public:
     return Options & opt;
   }
 
+  void setClangResourcesPath(const char* path);
+
   /// \brief Get the path of the clang resource files.
   const std::string &getClangResourcesPath();
 };
