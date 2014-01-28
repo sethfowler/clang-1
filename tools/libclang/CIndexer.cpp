@@ -43,6 +43,18 @@
 
 using namespace clang;
 
+void clang_setClangResourcesPath(CXIndex CIdx, const char* path) {
+  if (!CIdx)
+    return;
+  CIndexer *CXXIdx = static_cast<CIndexer *>(CIdx);
+  CXXIdx->setClangResourcesPath(path);
+}
+
+void CIndexer::setClangResourcesPath(const char* path) {
+  std::string pathString(path);
+  ResourcesPath = pathString;
+}
+
 const std::string &CIndexer::getClangResourcesPath() {
   // Did we already compute the path?
   if (!ResourcesPath.empty())
